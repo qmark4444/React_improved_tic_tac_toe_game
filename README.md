@@ -1,7 +1,9 @@
 # React_improved_tic_tac_toe_game
 
 Improved version of tic_tac_toe game from Intro to React on React official website
+
 Improvements:
+
 [1] When there is a win, highlight the three winning squares
 
 ---------------------------------------------------------------------------------------------------------
