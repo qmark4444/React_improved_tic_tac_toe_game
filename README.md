@@ -8,7 +8,7 @@ Improvements:
 
 [2] The board can be now of any size, i.e. any height, width
 
-[3] You are able to set the rule of how many pieces in a row is win. For example you can set that when five pieces in a row it is a win ([Gomoku](https://en.wikipedia.org/wiki/Gomoku))
+[3] You are able to set the rule of how many pieces in a row is win. For example you can set that when five pieces in a row it is a win ([Gomoku](https://en.wikipedia.org/wiki/Gomoku)). For a mxn board with k-in-a-row it is called [mnk-game](https://en.wikipedia.org/wiki/M,n,k-game).
 
 ---------------------------------------------------------------------------------------------------------
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
