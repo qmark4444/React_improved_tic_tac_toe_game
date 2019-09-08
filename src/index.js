@@ -12,23 +12,20 @@ function Square(props){
 }
 
 class Board extends React.Component {
-
-  //if props.winnerSquares is not null and includes i in lines
-  renderSquare = (i) =>
+  renderSquare = (r,c) =>
     <Square 
-      key={i}
-      winnerStyle={this.props.winnerSquares && this.props.winnerSquares.includes(i)? 'winner': ''}
-      value={this.props.squares[i]}
-      onClick={()=>this.props.onClick(i)}
+      key={`${r}-${c}`}
+      winnerStyle={this.props.winnerSquares && this.props.winnerSquares.find(sq => sq[0] === r && sq[1] === c)? 'winner': ''}
+      value={this.props.squares[r][c]}
+      onClick={()=>this.props.onClick(r,c)}
     />
 
-  createBoard() {
+  createBoard(w,h) {
     const board = [];
-    let num = 0; 
-    for(let row = 0; row < 3; row++){
+    for(let row = 0; row < h; row++){
       const boardRow = []; 
-      for(let col = 0; col < 3; col++){
-        boardRow.push(this.renderSquare(num++));
+      for(let col = 0; col < w; col++){
+        boardRow.push(this.renderSquare(row, col));
       }
       board.push(<div className="board-row" key={row}>{boardRow}</div>);
     }
@@ -38,7 +35,7 @@ class Board extends React.Component {
   render() {
     return (
       <div>
-        {this.createBoard()}
+        {this.createBoard(this.props.height,this.props.width)}
       </div>
     );
   }
@@ -49,47 +46,58 @@ class Game extends React.Component {
   constructor(props){
    super(props);
    this.state = {
-    history: [{squares: Array(9).fill(null)}]
+    history: [{squares: Array(props.height).fill(Array(props.width).fill(null))}]
     , stepNumber: 0
     , xIsNext: true,
    }
   }
 
-  calculateWinner(squares){
-    const lines = [
-      [0,1,2],
-      [0,3,6],
-      [0,4,8],
-      [1,4,7],
-      [2,5,8],
-      [2,4,6],
-      [3,4,5],
-      [6,7,8]
-    ]
-    for(let i = 0; i < lines.length; i++){
-      const [a,b,c] = lines[i];
-      if(squares[a] && squares[a] === squares[b] && squares[a] === squares[c]){
-        //return squares[a];
-        return {winner: squares[a], winnerSquares: lines[i]}
+  winnerSquares(squares, r, c, target, line){
+    let winning = true;
+    let winnerSquares = [];
+    for(let i = 0; i < target; i++){
+      let ri = r+i*line[0];
+      let ci = c+i*line[1];
+      let square = squares[ri]? squares[ri][ci] : null;
+      if(!square) return null;      
+      winning &= squares[r][c] === square;
+      if(winning){
+        winnerSquares.push([ri, ci]);
+      }
+      else{
+        return null;
       }
     }
-    //return null;
+    return winnerSquares.length? winnerSquares: null;
+  }
+
+  calculateWinner(squares, target){
+    const lines = [[1,0], [0,1], [1,1], [1,-1]]; //[vertical, horizontal, right diagonal, left diagonal]
+    for(let r = 0; r < this.props.height; r++){
+      for(let c = 0; c < this.props.width; c++){
+        for(let n = 0; n < lines.length; n++){
+          if(this.winnerSquares(squares, r, c, target, lines[n])){
+            return {winner: squares[r][c], winnerSquares: this.winnerSquares(squares, r, c, target, lines[n])}
+          }
+        }
+      }
+    }
     return {winner: null, winnerSquares: null}
   }
 
-  handleClick(i){ // when click a square, need to start from the pointer "stepNumber" location and truncate rest
+  handleClick(r,c){ // when click a square, need to start from the pointer "stepNumber" location and truncate rest
   //need to update history and therefore the steps <li>
     var history = this.state.history.slice(0, this.state.stepNumber + 1);
 
     //Deep clone
     var squares = JSON.parse(JSON.stringify(history[history.length-1].squares));
 
-    if(this.calculateWinner(squares).winner || squares[i]){
+    if(this.calculateWinner(squares, this.props.target).winner || squares[r][c]){
       return;
     }
 
-    squares[i] = this.state.xIsNext?'X': 'O' //will this mutate the history.squares? YES if squares reference to the old! 
-    //must make squares not reference!!!! need to go back and clone/deep copy
+    squares[r][c] = this.state.xIsNext?'X': 'O' 
+    // squares[i] = this.state.xIsNext?'X': 'O' 
 
     this.setState({
       history: history.concat([{squares: squares}]) //immuntable, history 
@@ -107,9 +115,7 @@ class Game extends React.Component {
   }
 
   render() {
-    let winner = this.calculateWinner(this.state.history[this.state.stepNumber].squares);
-    //let status = winner?
-    //  'Winner is: ' + winner
+    let winner = this.calculateWinner(this.state.history[this.state.stepNumber].squares, this.props.target);
     let status = winner.winner?
       'Winner is: ' + winner.winner
       :
@@ -131,7 +137,9 @@ class Game extends React.Component {
           <Board 
             winnerSquares={winner.winnerSquares}
             squares={this.state.history[this.state.stepNumber].squares}
-            onClick={(i)=>this.handleClick(i)}
+            onClick={(r,c)=>this.handleClick(r,c)}
+            height={this.props.height}
+            width={this.props.width}
           />
         </div>
         <div className="game-info">
@@ -146,6 +154,6 @@ class Game extends React.Component {
 // ========================================
 
 ReactDOM.render(
-  <Game />,
-  document.getElementById('root') //entry point
+  <Game target={4} height={6} width={6}/>,
+  document.getElementById('root') 
 );
