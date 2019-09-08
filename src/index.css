@@ -52,3 +52,15 @@ ol, ul {
 .winner {
   background: yellow;
 }
+
+.game-settings {
+  margin-bottom: 20px;
+}
+
+.setting-input {
+  margin-left: 10px;
+}
+
+.labeled-input {
+  margin-bottom: 10px;
+}

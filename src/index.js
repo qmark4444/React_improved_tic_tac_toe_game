@@ -20,7 +20,7 @@ class Board extends React.Component {
       onClick={()=>this.props.onClick(r,c)}
     />
 
-  createBoard(w,h) {
+  createBoard(h,w) {
     const board = [];
     for(let row = 0; row < h; row++){
       const boardRow = []; 
@@ -33,6 +33,9 @@ class Board extends React.Component {
   }
 
   render() {
+    // console.log('height', this.props.height);
+    // console.log('width', this.props.width);
+    // console.log(this.props.squares)
     return (
       <div>
         {this.createBoard(this.props.height,this.props.width)}
@@ -50,6 +53,19 @@ class Game extends React.Component {
     , stepNumber: 0
     , xIsNext: true,
    }
+  }
+
+  componentWillReceiveProps(nextProps){
+    // console.log(nextProps)
+    // console.log(this.props)
+    // console.log(this.props === nextProps) // must be different, because input is onChange()
+    let {height, width} = nextProps;  
+    //return to start state
+    this.setState({
+      history: [{squares: Array(parseInt(height)).fill(Array(parseInt(width)).fill(null))}]//parseInt!!!
+      , stepNumber: 0 
+      , xIsNext: true
+    });
   }
 
   winnerSquares(squares, r, c, target, line){
@@ -97,7 +113,6 @@ class Game extends React.Component {
     }
 
     squares[r][c] = this.state.xIsNext?'X': 'O' 
-    // squares[i] = this.state.xIsNext?'X': 'O' 
 
     this.setState({
       history: history.concat([{squares: squares}]) //immuntable, history 
@@ -129,7 +144,10 @@ class Game extends React.Component {
           </button>
         </li>                     
       )
-    })
+    });
+
+    // console.log('history ', this.state.history[this.state.stepNumber])
+    // console.log('squares ', this.state.history[this.state.stepNumber].squares)
 
     return (
       <div className="game">
@@ -142,6 +160,7 @@ class Game extends React.Component {
             width={this.props.width}
           />
         </div>
+        
         <div className="game-info">
           <div>{status}</div>
           <ol>{moves}</ol>
@@ -151,9 +170,102 @@ class Game extends React.Component {
   }
 }
 
+class MnkGame extends React.Component {
+  constructor(props){
+    super(props);
+    this.state = {
+      height: 3,
+      width: 3,
+      target: 3,
+    }
+  }
+
+  handleHeight = (e) => {
+    this.setState({height: e.target.value});//shallow merge
+  }
+
+  handleWidth = (e) => {
+    this.setState({width: e.target.value});//shallow merge
+  }
+
+  handleTarget = (e) => {
+    let target = e.target.value;
+    if(target > Math.max(this.state.height, this.state.width)){
+      alert("target must not exceed the height or width, whichever is larger");
+      return;
+    }
+    this.setState({target: target});//shallow merge
+  }
+
+  render() {
+    return (
+      <div>
+        <h1>m,n,k-game</h1>
+        <div className="game-settings">
+          <form>
+            <div className="labeled-input">
+              <label htmlFor="height">
+                height (m):
+              </label>
+              <input
+                id="height"
+                type="text"
+                name="height"
+                className="setting-input"
+                onChange={this.handleHeight}
+                // onKeyUp=
+                // onClick=
+                value={this.state.height}
+              />
+            </div>
+            
+            <div className="labeled-input">
+              <label htmlFor="width">
+                width (n):
+              </label>
+              <input
+                id="width"
+                type="text"
+                name="width"
+                className="setting-input"
+                onChange={this.handleWidth}
+                // onKeyUp=
+                // onClick=
+                value={this.state.width}
+              />
+            </div>
+
+            <div className="labeled-input">
+              <label htmlFor="target">
+                target (k): 
+              </label>
+              <input
+                id="target"
+                type="text"
+                name="target"
+                className="setting-input"
+                onChange={this.handleTarget}
+                // onKeyUp=
+                // onClick=
+                value={this.state.target}
+              />
+            </div>
+          </form>
+        </div>
+        <Game 
+          target={this.state.target} 
+          height={this.state.height} 
+          width={this.state.width}
+        />
+      </div>
+    )
+  }
+}
+
 // ========================================
 
 ReactDOM.render(
-  <Game target={4} height={6} width={6}/>,
+  <MnkGame />
+  ,
   document.getElementById('root') 
 );
