@@ -6,6 +6,8 @@ Improvements:
 
 [1] When there is a win, highlight the three winning squares
 
+[2] The boaard can be now of any size, i.e. any height, width
+
 ---------------------------------------------------------------------------------------------------------
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
